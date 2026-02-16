@@ -1,23 +1,34 @@
-function checkProbabilityTheory(count) {
-  let evenCount = 0;
-  let oddCount = 0;
+function checkProb(count) {{
+  let evenCounter = 0;
+  let oddCounder = 0;
 
+  // LOOP with count as limit
   for (let i = 0; i < count; i++) {
-    // rnd: випадкове ціле число від 100 до 1000 включно
-    const rnd = Math.floor(Math.random() * 901) + 100;
+    // generate random number btw 100 and 1000
+    const num = Math.floor(Math.random() * 901) + 100;
 
-    if (rnd % 2 === 0) {
-      evenCount++;
+    // if (num % 2 ===0)
+    if (num % 2 === 0) {
+      // increase even counter
+      evenCounter++;
     } else {
-      oddCount++;
+      // else {increase odd counter}
+      oddCounder++;
     }
   }
 
-  const evenPercent = count ? (evenCount / count) * 100 : 0;
-  const oddPercent = count ? (oddCount / count) * 100 : 0;
+  const evenPrc = count ? (evenCounter / count) * 100 : 0;
+  const oddPrc = count ? (oddCounder / count) * 100 : 0;
 
-  console.log("Кількість згенерованих чисел:", count);
-  console.log("Парних чисел:", evenCount);
-  console.log("Не парних чисел:", oddCount);
-  console.log(`Відсоток парних до не парних: ${evenPercent.toFixed(2)}% / ${oddPercent.toFixed(2)}%`);
+  return `Total numbers: ${count}\n` +
+         `Even numbers: ${evenCounter}\n` +
+         `Odd numbers: ${oddCounder}\n` +
+         `prc: ${evenPrc.toFixed(2)}% / ${oddPrc.toFixed(2)}%`;
 }
+console.log(
+    `Кількість згенерованих чисел: ${result.total}\n` +
+    `Кількість арних чисел: ${result.even}\n` +
+    `Кількість не парних чисел: ${result.odd}\n` +
+    `Відсоток парних до не парних: ${result.prc}`
+  );
+}  
