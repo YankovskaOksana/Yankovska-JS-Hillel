@@ -1,13 +1,19 @@
 var services = {
-  "стрижка": "60 грн",
-  "гоління": "80 грн",
-  "Миття голови": "100 грн"
+  "Стрижка": "60.25 грн",
+  "Гоління": "80.50 грн",
+  "Миття голови": "100,25 грн"
 }
 
-services['Розбити скло'] = "200 грн";
+services['Фарбування волосся'] = "200,40 грн";
 
 function extractPrice(value) {
-  return parseInt(value)
+  const match = String(value).match(/-?\d+(?:[.,]\d+)?/);
+  if (!match) return NaN;
+  return Number(match[0].replace(",", "."));
+}
+
+function formatUAH(num) {
+  return `${Number(num).toFixed(2)} грн`;
 }
 
 services.price = function () {
