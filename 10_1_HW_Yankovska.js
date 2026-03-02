@@ -12,9 +12,20 @@ var arr = [
     {
         userName: "Andrii",
         lastName: "",
-        email: "andrii@mail.ru" // Нам такі не підходять
-    }
+        email: "andrii@mail.ru"
+    },
+    {
+        userName: "",
+        lastName: "Fistashka",
+        email: ".fistashka@yahoo.com"
+    },
+    {
+        userName: "Anna",
+        lastName: "Efimova",
+        email: "anna.efimova@yahoo.com"
+    },
 ];
+
 var re = /^[a-z0-9]+(\.[a-z0-9]+)?@(gmail|yahoo)\.com$/i;
 
 var trustedEmails = [];
