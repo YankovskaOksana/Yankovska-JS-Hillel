@@ -1,4 +1,4 @@
-var str = "Wonderful Joyful Happiness Time Task Apple";
+var str = "Brilliant Crystal Banana Wonderful Time Joyful Happiness Time Task Apple Freedom";
 
 var re = /\b[^aA\s]{6,}\b/g;
 
