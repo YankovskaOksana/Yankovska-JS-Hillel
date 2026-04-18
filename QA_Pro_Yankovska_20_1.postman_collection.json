@@ -1,0 +1,1272 @@
+{
+  "info": {
+    "_postman_id": "32f4dc4b-3ed9-4472-b17f-744c0778c0a9",
+    "name": "QA_Pro_Yankovska_15_1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50075177"
+  },
+  "item": [
+    {
+      "name": "AUTH_SIGNUP validation loop",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const defaultRunTargets = [",
+              "  \"https://qauto.forstudy.space/api\",",
+              "  \"https://qauto2.forstudy.space/api\"",
+              "];",
+              "",
+              "if (!pm.collectionVariables.get(\"runTargets\")) {",
+              "  pm.collectionVariables.set(\"runTargets\", JSON.stringify(defaultRunTargets));",
+              "}",
+              "",
+              "let runIndex = Number(pm.collectionVariables.get(\"runIndex\"));",
+              "if (Number.isNaN(runIndex) || runIndex < 0) {",
+              "  runIndex = 0;",
+              "  pm.collectionVariables.set(\"runIndex\", runIndex);",
+              "}",
+              "",
+              "const runTargets = JSON.parse(pm.collectionVariables.get(\"runTargets\"));",
+              "const baseUrlApi = runTargets[runIndex];",
+              "pm.collectionVariables.set(\"baseUrlApi\", baseUrlApi);",
+              "",
+              "const minLen = 2;",
+              "const maxLen = 20;",
+              "",
+              "function randomName(min = 2, max = 20) {",
+              "  const letters = \"abcdefghijklmnopqrstuvwxyz\";",
+              "  const len = Math.floor(Math.random() * (max - min + 1)) + min;",
+              "  let name = \"\";",
+              "  for (let i = 0; i < len; i++) {",
+              "    name += letters[Math.floor(Math.random() * letters.length)];",
+              "  }",
+              "  return name;",
+              "}",
+              "",
+              "function genPassword(min = 8, max = 15) {",
+              "  const chars = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\";",
+              "  const len = Math.floor(Math.random() * (max - min + 1)) + min;",
+              "  const rule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,15}$/;",
+              "  let pass = \"\";",
+              "  do {",
+              "    pass = Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join(\"\");",
+              "  } while (!rule.test(pass));",
+              "  return pass;",
+              "}",
+              "",
+              "const randomEmail = `testemail+${Math.floor(Math.random() * 1000000)}@test.com`;",
+              "const validName = randomName(minLen, maxLen);",
+              "const validLastName = randomName(minLen, maxLen);",
+              "const validPassword = genPassword();",
+              "",
+              "pm.collectionVariables.set(\"email\", randomEmail);",
+              "pm.collectionVariables.set(\"firstName\", validName);",
+              "pm.collectionVariables.set(\"lastName\", validLastName);",
+              "pm.collectionVariables.set(\"password\", validPassword);",
+              "",
+              "const validationCases = [",
+              "  {",
+              "    testName: \"AUTH_SIGNUP (empty name)\",",
+              "    requestBody: {",
+              "      name: \"\",",
+              "      lastName: validLastName,",
+              "      email: randomEmail,",
+              "      password: validPassword,",
+              "      repeatPassword: validPassword",
+              "    },",
+              "    expectedCode: 400,",
+              "    expectedMessage: pm.collectionVariables.get(\"emptyNameError\")",
+              "  },",
+              "  {",
+              "    testName: \"AUTH_SIGNUP (invalid last name<2)\",",
+              "    requestBody: {",
+              "      name: validName,",
+              "      lastName: \"R\",",
+              "      email: randomEmail,",
+              "      password: validPassword,",
+              "      repeatPassword: validPassword",
+              "    },",
+              "    expectedCode: 400,",
+              "    expectedMessage: pm.collectionVariables.get(\"invalidLastNameError\")",
+              "  },",
+              "  {",
+              "    testName: \"AUTH_SIGNUP (invalid password<8)\",",
+              "    requestBody: {",
+              "      name: validName,",
+              "      lastName: validLastName,",
+              "      email: randomEmail,",
+              "      password: \"jkio34\",",
+              "      repeatPassword: validPassword",
+              "    },",
+              "    expectedCode: 400,",
+              "    expectedMessage: pm.collectionVariables.get(\"invalidPasswordError\")",
+              "  },",
+              "  {",
+              "    testName: \"AUTH_SIGNUP (the second password is different from the original one)\",",
+              "    requestBody: {",
+              "      name: validName,",
+              "      lastName: validLastName,",
+              "      email: randomEmail,",
+              "      password: validPassword,",
+              "      repeatPassword: \"fjklehdd5\"",
+              "    },",
+              "    expectedCode: 400,",
+              "    expectedMessage: pm.collectionVariables.get(\"passwordMismatchError\")",
+              "  },",
+              "  {",
+              "    testName: \"AUTH_SIGNUP (password does not contain a capital letter)\",",
+              "    requestBody: {",
+              "      name: validName,",
+              "      lastName: validLastName,",
+              "      email: randomEmail,",
+              "      password: \"lkson9rj\",",
+              "      repeatPassword: \"lkson9rj\"",
+              "    },",
+              "    expectedCode: 400,",
+              "    expectedMessage: pm.collectionVariables.get(\"invalidPasswordError\")",
+              "  }",
+              "];",
+              "",
+              "pm.collectionVariables.set(\"validationCases\", JSON.stringify(validationCases));",
+              "",
+              "let validationIndex = Number(pm.collectionVariables.get(\"validationIndex\"));",
+              "if (Number.isNaN(validationIndex) || validationIndex < 0) {",
+              "  validationIndex = 0;",
+              "}",
+              "",
+              "const currentCase = validationCases[validationIndex];",
+              "pm.collectionVariables.set(\"currentValidationIndex\", validationIndex);",
+              "pm.collectionVariables.set(\"currentValidationCase\", JSON.stringify(currentCase));",
+              "pm.variables.set(\"signupValidationBody\", JSON.stringify(currentCase.requestBody));",
+              "console.log(`Run target: ${baseUrlApi}`);",
+              "console.log(`Validation case: ${currentCase.testName}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const jsonData = pm.response.json();",
+              "const currentCase = JSON.parse(pm.collectionVariables.get(\"currentValidationCase\"));",
+              "const validationCases = JSON.parse(pm.collectionVariables.get(\"validationCases\"));",
+              "let validationIndex = Number(pm.collectionVariables.get(\"currentValidationIndex\"));",
+              "",
+              "pm.test(currentCase.testName + \" - status code\", function () {",
+              "  pm.expect(pm.response.code).to.eql(currentCase.expectedCode);",
+              "});",
+              "",
+              "pm.test(currentCase.testName + \" - message\", function () {",
+              "  pm.expect(jsonData.message).to.eql(currentCase.expectedMessage);",
+              "});",
+              "",
+              "validationIndex += 1;",
+              "pm.collectionVariables.set(\"validationIndex\", validationIndex);",
+              "",
+              "if (validationIndex < validationCases.length) {",
+              "  pm.execution.setNextRequest(\"AUTH_SIGNUP validation loop\");",
+              "} else {",
+              "  pm.collectionVariables.unset(\"validationIndex\");",
+              "  pm.collectionVariables.unset(\"currentValidationIndex\");",
+              "  pm.collectionVariables.unset(\"currentValidationCase\");",
+              "  pm.execution.setNextRequest(\"AUTH_SIGNUP\");",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{{signupValidationBody}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/auth/signup",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "auth",
+            "signup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AUTH_SIGNUP",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const email = `testemail+${Math.random()}@test.com`;\r",
+              "pm.collectionVariables.set(\"email\", email);\r",
+              "\r",
+              "const value = String(pm.collectionVariables.get(\"email\") || \"\").trim();\r",
+              "const re = /^[^\\s@]+@[^\\s@]+\\.[A-Za-z]{2,}$/;\r",
+              "\r",
+              "if (!value) throw new Error(\"Email is missing\");\r",
+              "if (!re.test(value)) throw new Error(`Invalid email format: \"${value}\"`);\r",
+              "\r",
+              "pm.collectionVariables.set(\"email\", value);\r",
+              "console.log(value);\r",
+              "\r",
+              "const minLen = 2;\r",
+              "const maxLen = 20;\r",
+              "function randomName(min = 2, max = 20) {\r",
+              "  const letters = \"abcdefghijklmnopqrstuvwxyz\";\r",
+              "  const len = Math.floor(Math.random() * (max - min + 1)) + min;\r",
+              "\r",
+              "  let name = \"\";\r",
+              "  for (let i = 0; i < len; i++) {\r",
+              "    name += letters[Math.floor(Math.random() * letters.length)];\r",
+              "  }\r",
+              "  return name.trim().replace(/\\s+/g, \"\");\r",
+              "}\r",
+              "const firstName = randomName(minLen, maxLen);\r",
+              "\r",
+              "pm.collectionVariables.set(\"firstName\", firstName);\r",
+              "console.log(firstName);\r",
+              "\r",
+              "const lastName = randomName(minLen, maxLen);\r",
+              "pm.collectionVariables.set(\"lastName\", lastName)\r",
+              "console.log(lastName)\r",
+              "\r",
+              "function genPassword(min = 8, max = 15) {\r",
+              "  const chars = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\";\r",
+              "  const len = Math.floor(Math.random() * (max - min + 1)) + min;\r",
+              "\r",
+              "  const rule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,15}$/;\r",
+              "\r",
+              "  let pass;\r",
+              "  do {\r",
+              "    pass = Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join(\"\");\r",
+              "  } while (!rule.test(pass));\r",
+              "\r",
+              "  return pass;\r",
+              "}\r",
+              "\r",
+              "const password = genPassword();\r",
+              "pm.collectionVariables.set(\"password\", password)\r",
+              "console.log(password);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"userId\", jsonData.data.userId);\r",
+              "\r",
+              "\r",
+              "var schema = {\r",
+              "  \"type\": \"object\",\r",
+              "  \"properties\": {\r",
+              "    \"status\": {\r",
+              "      \"type\": \"string\"\r",
+              "    },\r",
+              "    \"data\": {\r",
+              "      \"type\": \"object\",\r",
+              "      \"properties\": {\r",
+              "        \"userId\": {\r",
+              "          \"type\": \"integer\"\r",
+              "        },\r",
+              "        \"photoFilename\": {\r",
+              "          \"type\": \"string\"\r",
+              "        },\r",
+              "        \"distanceUnits\": {\r",
+              "          \"type\": \"string\"\r",
+              "        },\r",
+              "        \"currency\": {\r",
+              "          \"type\": \"string\"\r",
+              "        }\r",
+              "      },\r",
+              "      \"required\": [\r",
+              "        \"userId\",\r",
+              "        \"photoFilename\",\r",
+              "        \"distanceUnits\",\r",
+              "        \"currency\"\r",
+              "      ]\r",
+              "    }\r",
+              "  },\r",
+              "  \"required\": [\r",
+              "    \"status\",\r",
+              "    \"data\"\r",
+              "  ]\r",
+              "}\r",
+              "pm.test(\"schema\", ()=> {\r",
+              "  pm.response.to.have.jsonSchema(schema);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"{{firstName}}\",\r\n  \"lastName\": \"{{lastName}}\",\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\",\r\n  \"repeatPassword\": \"{{password}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/auth/signup",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "auth",
+            "signup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "USERS (Edits user's profile)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const minLen = 2;\r",
+              "const maxLen = 20;\r",
+              "\r",
+              "function randomName(min = 2, max = 20) {\r",
+              "  const letters = \"abcdefghijklmnopqrstuvwxyz\";\r",
+              "  const len = Math.floor(Math.random() * (max - min + 1)) + min;\r",
+              "\r",
+              "  let name = \"\";\r",
+              "  for (let i = 0; i < len; i++) {\r",
+              "    name += letters[Math.floor(Math.random() * letters.length)];\r",
+              "  }\r",
+              "  return name.trim().replace(/\\s+/g, \"\");\r",
+              "}\r",
+              "const firstName = randomName(minLen, maxLen);\r",
+              "\r",
+              "pm.collectionVariables.set(\"firstName\", firstName);\r",
+              "console.log(firstName);\r",
+              "\r",
+              "const lastName = randomName(minLen, maxLen);\r",
+              "pm.collectionVariables.set(\"lastName\", lastName)\r",
+              "console.log(lastName)\r",
+              "\r",
+              "\r",
+              "const minAge = 16;\r",
+              "const maxAge = 150;\r",
+              "\r",
+              "const today = new Date();\r",
+              "const start = new Date(today.getFullYear() - maxAge, 0, 1);\r",
+              "const end = new Date(today.getFullYear() - minAge, 11, 31);\r",
+              "\r",
+              "const randomTime = start.getTime() + Math.random() * (end.getTime() - start.getTime());\r",
+              "const dateBirth = new Date(randomTime).toISOString();\r",
+              "\r",
+              "pm.collectionVariables.set(\"dateBirth\", dateBirth);\r",
+              "\r",
+              "const value = String(pm.collectionVariables.get(\"dateBirth\") || \"\").trim();\r",
+              "const parsed = new Date(value);\r",
+              "\r",
+              "if (!value || isNaN(parsed.getTime())) throw new Error(`Invalid dateBirth: \"${value}\"`);\r",
+              "\r",
+              "const minDate = new Date(today.getFullYear() - maxAge, today.getMonth(), today.getDate());\r",
+              "const maxDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());\r",
+              "\r",
+              "if (parsed < minDate || parsed > maxDate) {\r",
+              "  throw new Error(`dateBirth is out of range (${maxAge}..${minAge} years): \"${value}\"`);\r",
+              "}\r",
+              "\r",
+              "console.log(value);\r",
+              "\r",
+              "\r",
+              "const countries = [\r",
+              "  \"Ukraine\",\r",
+              "  \"Spain\",\r",
+              "  \"Poland\",\r",
+              "  \"Germany\",\r",
+              "  \"France\",\r",
+              "  \"Italy\",\r",
+              "  \"United Kingdom\",\r",
+              "  \"United States\",\r",
+              "  \"Canada\",\r",
+              "  \"Mexico\"\r",
+              "];\r",
+              "\r",
+              "const country = countries[Math.floor(Math.random() * countries.length)];\r",
+              "\r",
+              "pm.collectionVariables.set(\"country\", country);\r",
+              "console.log(country);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"userId\", jsonData.data.userId);\r",
+              "\r",
+              "\r",
+              "var schema = {\r",
+              "  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+              "  \"type\": \"object\",\r",
+              "  \"properties\": {\r",
+              "    \"status\": {\r",
+              "      \"type\": \"string\"\r",
+              "    },\r",
+              "    \"data\": {\r",
+              "      \"type\": \"object\",\r",
+              "      \"properties\": {\r",
+              "        \"userId\": {\r",
+              "          \"type\": \"integer\"\r",
+              "        },\r",
+              "        \"photoFilename\": {\r",
+              "          \"type\": \"string\"\r",
+              "        },\r",
+              "        \"name\": {\r",
+              "          \"type\": \"string\"\r",
+              "        },\r",
+              "        \"lastName\": {\r",
+              "          \"type\": \"string\"\r",
+              "        },\r",
+              "        \"dateBirth\": {\r",
+              "          \"type\": \"string\"\r",
+              "        },\r",
+              "        \"country\": {\r",
+              "          \"type\": \"string\"\r",
+              "        }\r",
+              "      },\r",
+              "      \"required\": [\r",
+              "        \"userId\",\r",
+              "        \"photoFilename\",\r",
+              "        \"name\",\r",
+              "        \"lastName\",\r",
+              "        \"dateBirth\",\r",
+              "        \"country\"\r",
+              "      ]\r",
+              "    }\r",
+              "  },\r",
+              "  \"required\": [\r",
+              "    \"status\",\r",
+              "    \"data\"\r",
+              "  ]\r",
+              "}\r",
+              "pm.test(\"schema\", ()=> {\r",
+              "  pm.response.to.have.jsonSchema(schema);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"photo\": \"459876.jpg\",\r\n  \"name\": \"{{firstName}}\",\r\n  \"lastName\": \"{{lastName}}\",\r\n  \"dateBirth\": \"{{dateBirth}}\",\r\n  \"country\": \"{{country}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/users/profile",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "users",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "USERS_Password (Changes user's password)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "function genPassword(min = 8, max = 15) {\r",
+              "  const chars = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\";\r",
+              "  const len = Math.floor(Math.random() * (max - min + 1)) + min;\r",
+              "  const rule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,15}$/;\r",
+              "\r",
+              "  let pass;\r",
+              "  do {\r",
+              "    pass = Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join(\"\");\r",
+              "  } while (!rule.test(pass));\r",
+              "\r",
+              "  return pass;\r",
+              "}\r",
+              "\r",
+              "const oldPassword = String(pm.collectionVariables.get(\"password\") || \"\").trim();\r",
+              "const userId = String(pm.collectionVariables.get(\"userId\") || \"\").trim();\r",
+              "\r",
+              "if (!oldPassword) throw new Error('Missing \"password\" (old password)');\r",
+              "if (!userId) throw new Error('Missing \"userId\" (save it after signup/signin first)');\r",
+              "\r",
+              "const newPassword = genPassword();\r",
+              "pm.collectionVariables.set(\"NEWpassword\", newPassword);\r",
+              "\r",
+              "\r",
+              "console.log(\"userId:\", userId);\r",
+              "console.log(\"NEWpassword:\", newPassword);\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Status code is 200\", () => {\r",
+              "  pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test('Response status is \"ok\"', () => {\r",
+              "  pm.expect(json.status).to.eql(\"ok\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"userId exists\", () => {\r",
+              "  pm.expect(json.data).to.have.property(\"userId\");\r",
+              "});\r",
+              "\r",
+              "if (pm.response.code === 200 && json.status === \"ok\") {\r",
+              "  pm.collectionVariables.set(\"password\", pm.collectionVariables.get(\"NEWpassword\"));\r",
+              "  console.log(\"password updated\");\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"oldPassword\": \"{{password}}\",\r\n  \"password\": \"{{NEWpassword}}\",\r\n  \"repeatPassword\": \"{{NEWpassword}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/users/password",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "users",
+            "password"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AUTH_LOGOUT",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "console.log(\"has baseUrlApi:\", pm.variables.has(\"baseUrlApi\"));\r",
+              "\r",
+              "pm.test(\"Status code is 200\", () => {\r",
+              "  pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const json = pm.response.json?.();\r",
+              "if (json) {\r",
+              "  pm.test('status is \"ok\"', () => {\r",
+              "    pm.expect(json.status).to.eql(\"ok\");\r",
+              "  });\r",
+              "}\r",
+              "\r",
+              "pm.test(\"sid cookie is missing after logout\", () => {\r",
+              "  const sid = pm.cookies.get(\"sid\");\r",
+              "  pm.expect(!sid).to.be.true;\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrlApi}}/auth/logout",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AUTH_SIGNIN (Registers users in the system)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();\r",
+              "\r",
+              "console.log(\"has email:\", pm.variables.has(\"email\"));\r",
+              "console.log(\"has password:\", pm.variables.has(\"password\"));\r",
+              "\r",
+              "pm.test(\"Status code is 200 or 400\", () => {\r",
+              "  pm.expect(pm.response.code).to.be.oneOf([200, 400]);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response has status\", () => {\r",
+              "  pm.expect(json).to.have.property(\"status\");\r",
+              "});\r",
+              "\r",
+              "if (pm.response.code === 200) {\r",
+              "  pm.test('status is \"ok\"', () => pm.expect(json.status).to.eql(\"ok\"));\r",
+              "  pm.test(\"data.userId exists\", () => pm.expect(json.data).to.have.property(\"userId\"));\r",
+              "\r",
+              "  pm.collectionVariables.set(\"userId\", json.data.userId);\r",
+              "\r",
+              "  pm.test(\"sid cookie exists\", () => {\r",
+              "    const sid = pm.cookies.get(\"sid\");\r",
+              "    pm.expect(Boolean(sid)).to.be.true;\r",
+              "  });\r",
+              "} else {\r",
+              "  pm.test('status is \"error\"', () => pm.expect(json.status).to.eql(\"error\"));\r",
+              "  pm.test(\"error message exists\", () => pm.expect(json).to.have.property(\"message\"));\r",
+              "  console.log(\"signin failed:\", json.message);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\",\r\n  \"remember\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/auth/signin",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "auth",
+            "signin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "CARS (Gets car brands)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var brandsJsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"brands\", JSON.stringify(brandsJsonData))"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/cars/brands",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "cars",
+            "brands"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "CARS (Gets car models)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var modelsJsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"models\", JSON.stringify(modelsJsonData))"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/cars/models",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "cars",
+            "models"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "CARS (Creates new car)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const carJsonData = pm.response.json();\r",
+              "const carId = carJsonData.data.id;\r",
+              "\r",
+              "\r",
+              "console.log(\"has brandId:\", pm.variables.has(\"brandId\"));\r",
+              "console.log(\"has modelId:\", pm.variables.has(\"modelId\"));\r",
+              "console.log(\"has mileage:\", pm.variables.has(\"mileage\"));\r",
+              "\r",
+              "pm.test(\"Status code is 201\", () => {\r",
+              "  pm.response.to.have.status(201);\r",
+              "});\r",
+              "\r",
+              "const json = pm.response.json();\r",
+              "\r",
+              "pm.test('status is \"ok\"', () => pm.expect(json.status).to.eql(\"ok\"));\r",
+              "\r",
+              "pm.test(\"data.id exists\", () => {\r",
+              "  pm.expect(json.data).to.have.property(\"id\");\r",
+              "});\r",
+              "\r",
+              "pm.collectionVariables.set(\"carsId\", json.data.id);\r",
+              "\r",
+              "pm.test(\"brand/model/mileage match variables (if set)\", () => {\r",
+              "  const brandId = pm.variables.get(\"brandId\");\r",
+              "  const modelId = pm.variables.get(\"modelId\");\r",
+              "  const mileage = pm.variables.get(\"mileage\");\r",
+              "\r",
+              "  if (brandId) pm.expect(Number(json.data.carBrandId)).to.eql(Number(brandId));\r",
+              "  if (modelId) pm.expect(Number(json.data.carModelId)).to.eql(Number(modelId));\r",
+              "  if (mileage) pm.expect(Number(json.data.mileage)).to.eql(Number(mileage));\r",
+              "});\r",
+              "\r",
+              "pm.collectionVariables.set(\"carId\", carId);\r",
+              "console.log(\"carId:\", carId);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "function randomBrandId() {\r",
+              "    const brandsStr = pm.collectionVariables.get(\"brands\")\r",
+              "    const brandsObj = JSON.parse(brandsStr);\r",
+              "    const list = brandsObj.data;\r",
+              "    const randomItem = list[Math.floor(Math.random() * list.length)];\r",
+              "\r",
+              "    return randomItem.id; \r",
+              "}\r",
+              "\r",
+              "function randomModelId(brandId) {\r",
+              "    const modelsStr = pm.collectionVariables.get(\"models\")\r",
+              "    const modelsObj = JSON.parse(modelsStr);\r",
+              "    const list = modelsObj.data;\r",
+              "    const filtered = list.filter(m => m.carBrandId === Number(brandId));\r",
+              "    const randomItem = filtered[Math.floor(Math.random() * filtered.length)];\r",
+              "\r",
+              "    return randomItem.id; \r",
+              "}\r",
+              "\r",
+              "function randomMileage() {\r",
+              "    return Math.floor(Math.random() * 10) + 10\r",
+              "}\r",
+              "\r",
+              "const brandId = randomBrandId()\r",
+              "pm.collectionVariables.set(\"brandId\", brandId)\r",
+              "console.log(brandId)\r",
+              "\r",
+              "const modelId = randomModelId(brandId)\r",
+              "pm.collectionVariables.set(\"modelId\", modelId)\r",
+              "console.log(modelId)\r",
+              "\r",
+              "const mileage = randomMileage()\r",
+              "pm.collectionVariables.set(\"mileage\", mileage)\r",
+              "console.log(mileage)"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"carBrandId\": {{brandId}},\r\n  \"carModelId\": {{modelId}},\r\n  \"mileage\": {{mileage}}\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/cars",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "cars"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "CARS (Gets current user cars)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/cars",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "cars"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "EXPENSES (Creates an expense)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "function randomLiters(min = 2, max = 150) {\r",
+              "  const value = min + Math.random() * (max - min);\r",
+              "  return Number(value.toFixed(1));\r",
+              "}\r",
+              "\r",
+              "function nextMileage(carId, minStep = 1, maxStep = 500) {\r",
+              "  const key = `lastMileage_${carId}`;\r",
+              "  const last = Number(pm.collectionVariables.get(key) || 0);\r",
+              "\r",
+              "  const step = Math.floor(Math.random() * (maxStep - minStep + 1)) + minStep;\r",
+              "  const next = last + step;\r",
+              "\r",
+              "  pm.collectionVariables.set(key, next);\r",
+              "  return next;\r",
+              "}\r",
+              "\r",
+              "const carId = Number(pm.collectionVariables.get(\"carsId\") || pm.collectionVariables.get(\"carId\"));\r",
+              "if (!carId) throw new Error('Missing \"carsId\" (or \"carId\")');\r",
+              "\r",
+              "const liters = randomLiters(2, 150);\r",
+              "pm.collectionVariables.set(\"liters\", liters);\r",
+              "\r",
+              "const mileage = nextMileage(carId, 1, 500);\r",
+              "pm.collectionVariables.set(\"mileage\", mileage);\r",
+              "\r",
+              "console.log(\"carId:\", carId);\r",
+              "console.log(\"liters:\", liters);\r",
+              "console.log(\"mileage:\", mileage);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const carId = +pm.collectionVariables.get(\"carsId\") || +pm.collectionVariables.get(\"carId\");\r",
+              "const k = `prevMileage_${carId}`;\r",
+              "const cur = +pm.collectionVariables.get(\"mileage\");\r",
+              "const prev = +pm.collectionVariables.get(k) || 0;\r",
+              "\r",
+              "pm.test(\"mileage increases\", () => pm.expect(cur).to.be.above(prev));\r",
+              "pm.collectionVariables.set(k, cur);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"carId\": \"{{carId}}\",\r\n  \"reportedAt\": \"2021-05-17\",\r\n  \"mileage\": \"{{mileage}}\",\r\n  \"liters\": \"{{liters}}\",\r\n  \"totalCost\": 11,\r\n  \"forceMileage\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/expenses",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "expenses"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "USERS (Deletes user's account and current user session)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "console.log(\"has userId:\", pm.variables.has(\"userId\"));",
+              "",
+              "pm.test(\"Status code is 200 or 204\", () => {",
+              "  pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+              "});",
+              "",
+              "if (pm.response.code !== 204) {",
+              "  const json = pm.response.json?.();",
+              "  if (json) {",
+              "    pm.test('status is \"ok\"', () => pm.expect(json.status).to.eql(\"ok\"));",
+              "  }",
+              "}",
+              "",
+              "pm.test(\"sid cookie is missing after delete\", () => {",
+              "  const sid = pm.cookies.get(\"sid\");",
+              "  pm.expect(!sid).to.be.true;",
+              "});",
+              "",
+              "const runTargets = JSON.parse(pm.collectionVariables.get(\"runTargets\") || \"[]\");",
+              "let runIndex = Number(pm.collectionVariables.get(\"runIndex\"));",
+              "",
+              "if (!Number.isNaN(runIndex) && runIndex + 1 < runTargets.length) {",
+              "  runIndex += 1;",
+              "  pm.collectionVariables.set(\"runIndex\", runIndex);",
+              "  pm.collectionVariables.set(\"baseUrlApi\", runTargets[runIndex]);",
+              "  pm.collectionVariables.unset(\"validationIndex\");",
+              "  pm.collectionVariables.unset(\"currentValidationIndex\");",
+              "  pm.collectionVariables.unset(\"currentValidationCase\");",
+              "  pm.collectionVariables.unset(\"userId\");",
+              "  pm.collectionVariables.unset(\"carId\");",
+              "  pm.collectionVariables.unset(\"carsId\");",
+              "  pm.collectionVariables.unset(\"expensesId\");",
+              "  pm.execution.setNextRequest(\"AUTH_SIGNUP validation loop\");",
+              "} else {",
+              "  pm.collectionVariables.unset(\"runIndex\");",
+              "  pm.collectionVariables.unset(\"validationIndex\");",
+              "  pm.collectionVariables.unset(\"currentValidationIndex\");",
+              "  pm.collectionVariables.unset(\"currentValidationCase\");",
+              "  pm.execution.setNextRequest(null);",
+              "}"
+            ],
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{baseUrlApi}}/users",
+          "host": [
+            "{{baseUrlApi}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrlApi",
+      "value": "https://qauto.forstudy.space/api"
+    },
+    {
+      "key": "runTargets",
+      "value": "[\"https://qauto.forstudy.space/api\",\"https://qauto2.forstudy.space/api\"]"
+    },
+    {
+      "key": "runIndex",
+      "value": ""
+    },
+    {
+      "key": "validationCases",
+      "value": ""
+    },
+    {
+      "key": "signupValidationBody",
+      "value": ""
+    },
+    {
+      "key": "email",
+      "value": ""
+    },
+    {
+      "key": "firstName",
+      "value": ""
+    },
+    {
+      "key": "lastName",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "dateBirth",
+      "value": ""
+    },
+    {
+      "key": "country",
+      "value": ""
+    },
+    {
+      "key": "NEWpassword",
+      "value": ""
+    },
+    {
+      "key": "brands",
+      "value": ""
+    },
+    {
+      "key": "models",
+      "value": ""
+    },
+    {
+      "key": "brandId",
+      "value": ""
+    },
+    {
+      "key": "modelId",
+      "value": ""
+    },
+    {
+      "key": "mileage",
+      "value": ""
+    },
+    {
+      "key": "carsId",
+      "value": ""
+    },
+    {
+      "key": "carId",
+      "value": ""
+    },
+    {
+      "key": "liters",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "emptyNameError",
+      "value": "name is required"
+    },
+    {
+      "key": "invalidLastNameError",
+      "value": "last name has to be from 2 to 20 characters long"
+    },
+    {
+      "key": "invalidPasswordError",
+      "value": "password has to be from 8 to 15 characters long and contain at least one integer, one capital, and one small letter"
+    },
+    {
+      "key": "passwordMismatchError",
+      "value": "passwords do not match"
+    },
+    {
+      "key": "lastMileage_234337",
+      "value": ""
+    },
+    {
+      "key": "prevMileage_234337",
+      "value": ""
+    }
+  ]
+}
